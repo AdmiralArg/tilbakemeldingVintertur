@@ -278,7 +278,7 @@
       <div class="confirm-icon">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h2 id="confirmMsg">Takk for din påmelding som foredragsholder på Skråstreks Fagdag, 9.&nbsp;april, 2026.</h2>
+      <h2 id="confirmMsg">Takk for din påmelding til Fagdag 9.&nbsp;april. Du er nå meldt opp som foredragsholder.</h2>
       <p class="sub" id="nameBack"></p>
       <p style="margin-top: 2.5rem; font-size: 0.82rem;"><a href="https://docs.google.com/forms/d/e/1FAIpQLSf2wYwBapiX20um0XrG_tL8JQ5liEpQWEJ3fOSEpd73N0XxHw/viewform?usp=publish-editor" style="color: var(--muted); text-decoration: underline; text-underline-offset: 3px;">Om du har et faktisk foredrag, meld deg på her</a></p>
     </div>
@@ -343,7 +343,7 @@
       }).catch(() => {});
     }
 
-    document.getElementById('confirmMsg').textContent = 'Takk for din påmelding som foredragholder Fagdag 9. april, ' + name + '.';
+    document.getElementById('confirmMsg').innerHTML = 'Takk ' + name + ', for din påmelding som Foredragsholder på Skråstreks fagdag, <span style="white-space:nowrap">9. april 2026.</span>';
     document.getElementById('nameBack').textContent = '';
     current = 2;
     showSlide(current);
