@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback – Vintertur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #1a1a2e;
+    --accent: #6cc4a1;
+    --accent-hover: #5bb892;
+    --text: #e8e8e8;
+    --muted: #8a8aa0;
+    --input-border: #3a3a5c;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Progress bar */
+  .progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Step counter */
+  .step-counter {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 500;
+    z-index: 100;
+  }
+
+  /* Main area */
+  .main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Slides */
+  .slide {
+    position: absolute;
+    width: 100%;
+    max-width: 600px;
+    padding: 0 1.5rem;
+    opacity: 0;
+    transform: translateY(40px);
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    position: relative;
+  }
+  .slide.exit-up {
+    opacity: 0;
+    transform: translateY(-40px);
+    pointer-events: none;
+  }
+
+  /* Welcome slide */
+  .welcome-eyebrow {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+  }
+
+  .welcome h1 {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 300;
+    line-height: 1.35;
+    margin-bottom: 0.8rem;
+  }
+
+  .welcome p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+  }
+
+  /* Question slides */
+  .q-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .q-number svg { width: 14px; height: 14px; fill: var(--accent); }
+
+  .q-text {
+    font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+    font-weight: 300;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+  }
+
+  /* Input */
+  .tf-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--input-border);
+    padding: 0.8rem 0;
+    font-family: inherit;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .tf-input::placeholder { color: #4a4a6a; }
+  .tf-input:focus { border-color: var(--accent); }
+
+  /* Buttons */
+  .btn-row {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: #1a1a2e;
+    border: none;
+    padding: 0.7rem 1.6rem;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn:active { transform: scale(0.97); }
+  .btn svg { width: 16px; height: 16px; fill: #1a1a2e; }
+
+  .hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .hint kbd {
+    background: rgba(255,255,255,0.08);
+    padding: 0.15em 0.5em;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.85em;
+  }
+
+  /* Confirmation */
+  .confirm-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .confirm-icon svg {
+    width: 36px;
+    height: 36px;
+    stroke: #1a1a2e;
+    stroke-width: 2.5;
+    fill: none;
+  }
+
+  .confirm h2 {
+    font-size: clamp(1.3rem, 3.5vw, 1.7rem);
+    font-weight: 400;
+    line-height: 1.4;
+    margin-bottom: 0.6rem;
+  }
+
+  .confirm .sub {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.7rem;
+    color: #3a3a5c;
+  }
+
+  @media (max-width: 480px) {
+    .hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress"><div class="progress-fill" id="progress"></div></div>
+<div class="step-counter" id="stepCounter"></div>
+
+<div class="main">
+
+  <!-- Slide 0: Welcome -->
+  <div class="slide active" id="slide-0">
+    <div class="welcome">
+      <div class="welcome-eyebrow">Vintertur 2025</div>
+      <h1>Feedback på årets fagopplegg på vintertur</h1>
+      <p>5 korte spørsmål — tar under 2 minutter.</p>
+      <div class="btn-row">
+        <button class="btn" onclick="goNext()">Start <svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 1: Name -->
+  <div class="slide" id="slide-1">
+    <div class="q-number">
+      <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>
+      1 → 5
+    </div>
+    <div class="q-text">Hva heter du?</div>
+    <input class="tf-input" type="text" id="nameInput" placeholder="Skriv inn navnet ditt…">
+    <div class="btn-row">
+      <button class="btn" onclick="submitName()">OK <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></button>
+      <span class="hint">trykk <kbd>Enter ↵</kbd></span>
+    </div>
+  </div>
+
+  <!-- Slide 2: Confirmation -->
+  <div class="slide" id="slide-2">
+    <div class="confirm">
+      <div class="confirm-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>Takk for din påmelding til Fagdag 9.&nbsp;april. Du er nå meldt opp som foredragsholder.</h2>
+      <p class="sub" id="nameBack"></p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Drevet av dårlig humor</div>
+
+<script>
+  // Replace with your deployed Google Apps Script web app URL
+  const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwvVh9bCQxNuJYjk-zDuYFNRfxbAG0G5pTKh31Ur_9Mmu7e7EtNvlI0gb99J5F3P943fA/exec';
+
+  let current = 0;
+
+  function updateUI() {
+    if (current === 0) {
+      document.getElementById('stepCounter').textContent = '';
+      document.getElementById('progress').style.width = '0%';
+    } else if (current === 1) {
+      document.getElementById('stepCounter').textContent = '1 av 5';
+      document.getElementById('progress').style.width = '20%';
+    } else {
+      document.getElementById('stepCounter').textContent = '';
+      document.getElementById('progress').style.width = '100%';
+    }
+  }
+
+  function showSlide(index) {
+    document.querySelectorAll('.slide').forEach((s, i) => {
+      if (i < index) {
+        s.classList.remove('active');
+        s.classList.add('exit-up');
+      } else if (i === index) {
+        s.classList.remove('exit-up');
+        s.classList.add('active');
+      } else {
+        s.classList.remove('active', 'exit-up');
+      }
+    });
+  }
+
+  function goNext() {
+    current++;
+    showSlide(current);
+    updateUI();
+    if (current === 1) {
+      setTimeout(() => document.getElementById('nameInput').focus(), 500);
+    }
+  }
+
+  function submitName() {
+    const name = document.getElementById('nameInput').value.trim();
+    if (!name) { document.getElementById('nameInput').focus(); return; }
+
+    if (SHEETS_URL) {
+      fetch(SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, timestamp: new Date().toISOString() })
+      }).catch(() => {});
+    }
+
+    document.getElementById('nameBack').textContent = 'Vi har registrert: ' + name;
+    current = 2;
+    showSlide(current);
+    updateUI();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (current === 0) goNext();
+      else if (current === 1) submitName();
+    }
+  });
+
+  updateUI();
+</script>
+</body>
+</html>
